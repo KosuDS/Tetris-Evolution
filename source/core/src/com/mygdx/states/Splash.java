@@ -4,20 +4,38 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.tools.GifDecoder;
 
 public class Splash implements Screen {
 
-	TextureRegion currentFrame;
-	Batch batch;
+	TextureRegion textureCurrentFrame;
+	private int idCurrentFrame = 0;
+	
+	SpriteBatch batch;
+	Animation animation;
+	
+	private float deltaAccumulator = 0.0f;
+	private float speedAnimation = 1/30f;
 	
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
 		
+		if (deltaAccumulator > speedAnimation){
+			
+			textureCurrentFrame = animation.getKeyFrame(idCurrentFrame, true); 
+			
+	        batch.begin();
+	        batch.draw(textureCurrentFrame, 0, 0);          
+	        batch.end();
+	        
+	        deltaAccumulator = deltaAccumulator - speedAnimation;
+		}
 		
+		deltaAccumulator += delta;
 	}
 
 	@Override
@@ -28,12 +46,9 @@ public class Splash implements Screen {
 
 	@Override
 	public void show() {
-		Animation anim = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("my-gif-anumation.gif").read());
-		
-		currentFrame = anim.getKeyFrame(1, true); 
-        batch.begin();
-        batch.draw(currentFrame, 0, 0);          
-        batch.end();
+		batch = new SpriteBatch();
+		animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("my-gif-anumation.gif").read());
+
 	}
 
 	@Override
