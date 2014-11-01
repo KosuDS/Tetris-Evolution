@@ -1,7 +1,9 @@
 package com.mygdx.states;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,33 +11,34 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.tools.GifDecoder;
 
 public class Splash implements Screen {
-
-	TextureRegion textureCurrentFrame;
-	private int idCurrentFrame = 0;
 	
-	SpriteBatch batch;
-	Animation animation;
+	private final static int width = Gdx.graphics.getWidth();
+	private final static int height = Gdx.graphics.getHeight();
+
+	private TextureRegion textureCurrentFrame;
+	
+	private final SpriteBatch batch = new SpriteBatch();;
+	private final Animation animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.NORMAL, Gdx.files.internal("res/images/splash.gif").read());;
 	
 	private float deltaAccumulator = 0.0f;
-	private float speedAnimation = 1/30f;
 	
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		if (deltaAccumulator > speedAnimation){
-			
-			textureCurrentFrame = animation.getKeyFrame(idCurrentFrame, true); 
-			
-	        batch.begin();
-	        batch.draw(textureCurrentFrame, 0, 0);          
-	        batch.end();
-	        
-	        deltaAccumulator = deltaAccumulator - speedAnimation;
-		}
+        if (animation.isAnimationFinished(deltaAccumulator)){
+        	((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        	
+        } else {
+    		deltaAccumulator += delta;
+    		textureCurrentFrame = animation.getKeyFrame(deltaAccumulator, true); 
+        }
 		
-		deltaAccumulator += delta;
+        batch.begin();
+        batch.draw(textureCurrentFrame, 0, 0, width, height);
+        batch.end();
+        
 	}
 
 	@Override
@@ -46,8 +49,6 @@ public class Splash implements Screen {
 
 	@Override
 	public void show() {
-		batch = new SpriteBatch();
-		animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("my-gif-anumation.gif").read());
 
 	}
 
