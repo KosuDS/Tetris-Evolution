@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.mygdx.modes.DarwinMode;
 
 public class MainMenu implements Screen {
 
@@ -62,7 +63,7 @@ public class MainMenu implements Screen {
 
 					@Override
 					public void run() {
-						((Game) Gdx.app.getApplicationListener()).setScreen(new com.mygdx.game.Game(5, 7));
+						((Game) Gdx.app.getApplicationListener()).setScreen(new com.mygdx.game.Game(new DarwinMode()));
 					}
 				})));
 			}

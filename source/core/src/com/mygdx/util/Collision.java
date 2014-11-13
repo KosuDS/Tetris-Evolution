@@ -3,30 +3,16 @@ package com.mygdx.util;
 public class Collision {
 	
 	public final static boolean checkCollisionWithPoint(int x, int y, int width, int height, int x1, int y1, int width1, int height1){
+		width = width - 1;
+		x = x + 1;
 		
-		if (x >= x1 && x <= x1 + width1){
-			if (y >= y1 && y <= y1 + height1) return true;
-			
-			if (y + height <= y1 + height1 && y + height >= y1) return true;
-		}
+		width1 = width1 - 1;
+		x1 = x1 + 1;
 		
-		if (x + width >= x1 && x + width <= x1 + width1){
-			if (y >= y1 && y <= y1 + height1) return true;
-			
-			if (y + height <= y1 + height1 && y + height >= y1) return true;
-		}
-		
-		if (x1 >= x && x1 <= x + width){
-			if (y1 >= y && y1 <= y + height) return true;
-			
-			if (y1 + height1 <= y + height && y1 + height1 >= y) return true;
-		}
-		
-		if (x1 + width1 >= x && x1 + width1 <= x + width){
-			if (y1 >= y && y1 <= y + height) return true;
-			
-			if (y1 + height1 <= y + height && y1 + height1 >= y) return true;
-		}
+		if (x >= x1 && x <= x1 + width1 && y >= y1 && y <= y1 + height) return true; // Left bottom 
+		if (x + width >= x1 && x + width <= x1 + width1 && y >= y1 && y <= y1 + height) return true; // Right bottom 
+		if (x >= x1 && x <= x1 + width1 && y + height >= y1 && y + height <= y1 + height1) return true; // Left up
+		if (x + width >= x1 && x + width <= x1 + width1 && y + height >= y1 && y + height <= y1 + height1) return true; // Right up
 		
 		return false;
 	}

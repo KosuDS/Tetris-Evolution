@@ -7,15 +7,17 @@ public class Block {
 	private int y;
 	private int width;
 	private int height;
+	private int rotation;
 	
 	private int imageId;
 	private int speedFalling;
 	
-	public Block(int x, int y, int width, int height, int imageId, int speedFalling){
+	public Block(int x, int y, int width, int height, int rotation, int imageId, int speedFalling){
 		setX(x);
 		setY(y);
 		setWidth(width);
 		setHeight(height);
+		setRotation(rotation);
 		
 		setImageId(imageId);
 		setSpeedFalling(speedFalling);
@@ -99,6 +101,18 @@ public class Block {
 	public void move(int x, int y){
 		setX(getX() + x);
 		setY(getY() + y);
+	}
+
+
+
+	public int getRotation() {
+		return rotation;
+	}
+
+
+
+	public void setRotation(int rotation) {
+		this.rotation = rotation;
 	}
 	
 }

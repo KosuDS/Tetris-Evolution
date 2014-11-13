@@ -5,7 +5,7 @@ public class DarwinMode extends Mode{
 	/*private BlocksResults br = new BlocksResults();*/
 	
 	public DarwinMode(){
-		super(5, 7, 1f);
+		super(5, 7, 0.4f);
 		
 	}
 	
