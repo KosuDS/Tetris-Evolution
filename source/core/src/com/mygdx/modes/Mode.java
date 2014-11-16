@@ -5,13 +5,16 @@ import java.util.Map;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.blocks.Block;
+import com.mygdx.blocks.BlocksBox;
+import com.mygdx.blocks.Connect;
+import com.mygdx.blocks.Level;
+import com.mygdx.blocks.LogicScheme;
 import com.mygdx.tools.InvertXY;
+import com.mygdx.tools.Resources;
 
 public class Mode {
 	
@@ -25,33 +28,39 @@ public class Mode {
 	private final int halfScreenVertical = widthPixel / 2;
 	private final int halfScreenHorizontal = widthPixel / 2;
 	
-	private final static int defaultSpeedFalling = -1;
-	private final static int acceleratedSpeedFalling =  defaultSpeedFalling * 2;
+	private int widthBlock;
+	private int heightBlock;
 	
-	private final static int defaultWidthBlock = 32;
-	private final static int defaultHeightBlock = 32;
+	private BlocksBox blocksBox;
+	private Map<Integer, TextureRegion> textureBlocks;
 	
-	private float defaultDeltaInterval = 0.01f;
-	private float storageDelta = 0;
-	
-	private Map<Integer, Block> blocks;
-	
+	private Level actualLevel;
 	private Block actualBlock;
 	private Block nextBlock;
 	
-	public Mode(int width, int height, float deltaInterval){
-		setWidth(width);
-		setHeight(height);
-		setDefaultDeltaInterval(deltaInterval);
+	private LogicScheme scheme;
+
+	public Mode(int width, int height, int widthBlock, int heightBlock, String texturePackName){
+		this.width = width;
+		this.height = height;
+		this.widthBlock = widthBlock;
+		this.heightBlock = heightBlock;
 		
-		
-		blocks = new HashMap<Integer, Block>();
-		actualBlock = new Block(0, 100, 32, 32, 0, 0, defaultSpeedFalling);
-		nextBlock = new Block(0, 100, 32, 32, 0, 0, defaultSpeedFalling);
+		blocksBox = new BlocksBox();
+		textureBlocks = Resources.splitImage(texturePackName, widthBlock, heightBlock);
 	}
 	
-	public boolean checkBlockCollisionWithOtherBlocks(Block block, int xMove, int yMove){
-		for (Block otherBlock : blocks.values()) {
+	private void refreschScheme(){
+		actualLevel = null;
+		
+		Block block = scheme.getBlocks().get(0);
+		
+		actualBlock = new Block(block.getX(), block.getY(), block.getWidth(), block.getHeight(), block.getRotation(), block.getBlockId(), block.getImageId(), block.getSpeedFalling());
+		nextBlock = new Block(block.getX(), block.getY(), block.getWidth(), block.getHeight(), block.getRotation(), block.getBlockId(), block.getImageId(), block.getSpeedFalling());
+	}
+	
+	public boolean checkBlockCollisionWithOtherBlocks(Block block, float xMove, float yMove){
+		for (Block otherBlock : blocksBox.getBlocks()) {
 			if (block.checkCollisionWithBlock(xMove, yMove, otherBlock)){
 				return true;
 			}
@@ -63,8 +72,10 @@ public class Mode {
 	public void checkEvents(int screenX, int screenY){
 		screenY = InvertXY.invert(screenY, heightPixel, 0);
 		
+		checkLogic(screenX, screenY);
+		
 		if (actualBlock.checkCollisionWithPoint(0, 0, screenX, screenY, 1, 1)){
-			actualBlock.setSpeedFalling(acceleratedSpeedFalling);
+			actualBlock.setSpeedFalling(actualBlock.getSpeedFalling());
 		}
 
 		if (screenX < halfScreenVertical){
@@ -85,49 +96,57 @@ public class Mode {
 	}
 	
 	public void randomNextBlock(){
-		blocks.put(blocks.size(), actualBlock);
+		blocksBox.getBlocks().add(actualBlock);
 		
 		actualBlock = nextBlock;
 		
-		int x = (random.nextInt(width) * defaultWidthBlock);
-		int y = height * defaultHeightBlock;
+		float x = (random.nextInt(width) * widthBlock);
+		float y = height * heightBlock;
 		
-		nextBlock = new Block(x, y, defaultWidthBlock, defaultHeightBlock, 0, 0, defaultSpeedFalling);
-		
-		System.out.println(String.valueOf(x) + " - " + String.valueOf(y));
+		Block block = scheme.getBlocks().get(0);
+		nextBlock = new Block(x, y, block.getWidth(), block.getHeight(), block.getRotation(), block.getBlockId(), block.getImageId(), block.getSpeedFalling());
 	}
 	
-	public void draw(SpriteBatch batch, Map<Integer, TextureRegion> textureBlocks){
+	private void checkLogic(float x, float y){
 
+		scheme.checkConnects(blocksBox, x ,y);
+	}
+	
+	public void draw(SpriteBatch batch){
+		textureBlocks.get(actualBlock.getImageId());
 		batch.draw(textureBlocks.get(actualBlock.getImageId()), actualBlock.getX(), actualBlock.getY());
 		
-		for (Block block : blocks.values()) {
-			batch.draw(textureBlocks.get(actualBlock.getImageId()), block.getX(), block.getY());
+		for (Block block : blocksBox.getBlocks()) {
+			batch.draw(textureBlocks.get(block.getImageId()), block.getX(), block.getY());
 		}
 		
 	}
 	
 	public void update(float delta){
-		
-		storageDelta += delta;
-		
-		if (storageDelta >= 0.01f){
 			
-			storageDelta = storageDelta - 0.01f;
+		if (checkBlockCollisionWithOtherBlocks(actualBlock, 0, actualBlock.getSpeedFalling() * delta) || actualBlock.checkCollisionWithBorder(0, actualBlock.getSpeedFalling() * delta, widthPixel, heightPixel)){
+			randomNextBlock();
+		} else {
+			actualBlock.move(0, actualBlock.getSpeedFalling() * delta);
+		}
+		
+		for (int index = 0; index < blocksBox.getBlocks().size; index++) {
+			Block block = blocksBox.getBlocks().get(index);
 			
-			if (checkBlockCollisionWithOtherBlocks(actualBlock, 0, actualBlock.getSpeedFalling()) || actualBlock.checkCollisionWithBorder(0, actualBlock.getSpeedFalling(), widthPixel, heightPixel)){
-				randomNextBlock();
-			} else {
-				actualBlock.move(0, actualBlock.getSpeedFalling());
-			}
-	
-			for (Block block : blocks.values()) {
-				if (!checkBlockCollisionWithOtherBlocks(block, 0, block.getSpeedFalling()) && !block.checkCollisionWithBorder(0, block.getSpeedFalling(), widthPixel, heightPixel)){
+				if (!checkBlockCollisionWithOtherBlocks(block, 0, block.getSpeedFalling() * delta) && !block.checkCollisionWithBorder(0, block.getSpeedFalling() * delta, widthPixel, heightPixel)){
 				
-					block.move(0, block.getSpeedFalling());
-				}
+				block.move(0, block.getSpeedFalling() * delta);
 			}
 		}
+		
+		/***
+		for (Block block : blocksBox.getBlocks()) {
+			if (!checkBlockCollisionWithOtherBlocks(block, 0, block.getSpeedFalling() * delta) && !block.checkCollisionWithBorder(0, block.getSpeedFalling() * delta, widthPixel, heightPixel)){
+				
+				block.move(0, block.getSpeedFalling() * delta);
+			}
+		}
+		***/
 	}
 
 	public int getWidth() {
@@ -145,20 +164,14 @@ public class Mode {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-
-	public int getAcceleratedSpeedFalling() {
-		return acceleratedSpeedFalling;
-	}
-
-	public int getDefaultSpeedFalling() {
-		return defaultSpeedFalling;
-	}
 	
-	public float getDefaultDeltaInterval() {
-		return defaultDeltaInterval;
+	public LogicScheme getScheme() {
+		return scheme;
 	}
 
-	public void setDefaultDeltaInterval(float deltaInterval) {
-		this.defaultDeltaInterval = deltaInterval;
+	public void setScheme(LogicScheme scheme) {
+		this.scheme = scheme;
+		
+		refreschScheme();
 	}
 }

@@ -18,9 +18,6 @@ public class Game implements Screen {
 	
 	private SpriteBatch batch;
 	
-	private Texture texturePack;
-	private Map<Integer, TextureRegion> textureBlocks;
-	
 	public Game(Mode mode){
 		setMode(mode);
 	}
@@ -53,7 +50,7 @@ public class Game implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		batch.begin();
-		actualMode.draw(batch, textureBlocks);
+		actualMode.draw(batch);
 		batch.end();
 	}
 
@@ -65,13 +62,6 @@ public class Game implements Screen {
 	@Override
 	public void show() {
 		batch = new SpriteBatch();
-		texturePack = new Texture(Gdx.files.internal("res/img/textureSet.png"));
-		textureBlocks = new HashMap<Integer, TextureRegion>();
-		
-		for (int column = 0; column < (int) texturePack.getWidth() / 32; column++) {
-			textureBlocks.put(column, new TextureRegion(texturePack, column * 32, 0, 32, 32));
-		}
-
 	}
 
 	@Override
