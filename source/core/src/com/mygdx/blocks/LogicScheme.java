@@ -54,15 +54,21 @@ public class LogicScheme {
 							finalIdexBlocks.add(blockIndex);
 							
 							if (value == connect.getDirections().length){
+								Array<Block> toRemove = new Array<Block>();
+								
 								for (int index = 0; index < finalIdexBlocks.size; index++) {
 									int actualBlockIndex = finalIdexBlocks.get(index);
+									Block actualBlock = blocksBox.getBlocks().get(actualBlockIndex);
+									
 									int substitution = connect.getSubstitution()[index];
 									
-									if (substitution == -1) blocksBox.getBlocks().get(actualBlockIndex).setImageId(substitution + 3);
+									if (substitution == -1) toRemove.add(actualBlock);
 									else {
-										blocksBox.getBlocks().get(actualBlockIndex).setImageId(substitution);
+										activeBlock.setImageId(substitution);
 									}
 								}
+								
+								blocksBox.getBlocks().removeAll(toRemove, false);
 								
 								return;
 							}
@@ -71,38 +77,6 @@ public class LogicScheme {
 				}
 			}
 		}
-		
-		
-		/***
-		Block aBlock = getBlock(x, y);
-		Array<Block> anotherBlock = new Array<Block>();
-		
-		boolean can = true;
-		
-		for (Connect connect : scheme.getConnects()) {
-			anotherBlock.clear();
-			can = true;
-			
-			for (int[] direction : connect.getDirections()) {
-				Block block = getBlock(x + direction[0] * widthBlock, y + direction[1] * heightBlock);
-				
-				if (block != null) anotherBlock.add(block);
-			}
-			
-			if (anotherBlock.size < connect.getDirections().length) can = false;
-			else {
-				for (Block block : anotherBlock) {
-					if (block.getBlockId() != aBlock.getBlockId()) can = false;
-				}
-			}
-			
-			if (can) {
-				getBlock(x, y).setImageId(1);
-				
-				return;
-			}
-		}
-		***/
 	}
 	
 	public void addConnect(Connect connect){
