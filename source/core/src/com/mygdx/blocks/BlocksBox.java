@@ -12,6 +12,16 @@ public class BlocksBox {
 		blocks = new Array<Block>();
 	}
 	
+	public boolean checkBlockCollisionWithOtherBlocks(Block block, float xMove, float yMove){
+		for (Block otherBlock : getBlocks()) {
+			if (!block.equals(otherBlock) && block.checkCollisionWithBlock(xMove, yMove, otherBlock)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public Array<Block> getBlocks(){
 		return blocks;
 	}

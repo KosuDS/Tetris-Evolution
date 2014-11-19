@@ -58,16 +58,6 @@ public class Mode {
 		actualBlock = new Block(block.getX(), block.getY(), block.getWidth(), block.getHeight(), block.getRotation(), block.getBlockId(), block.getImageId(), block.getSpeedFalling());
 		nextBlock = new Block(block.getX(), block.getY(), block.getWidth(), block.getHeight(), block.getRotation(), block.getBlockId(), block.getImageId(), block.getSpeedFalling());
 	}
-	
-	public boolean checkBlockCollisionWithOtherBlocks(Block block, float xMove, float yMove){
-		for (Block otherBlock : blocksBox.getBlocks()) {
-			if (block.checkCollisionWithBlock(xMove, yMove, otherBlock)){
-				return true;
-			}
-		}
-		
-		return false;
-	}
 
 	public void checkEvents(int screenX, int screenY){
 		screenY = InvertXY.invert(screenY, heightPixel, 0);
@@ -81,14 +71,14 @@ public class Mode {
 		if (screenX < halfScreenVertical){
 			if (actualBlock.checkCollisionWithPoint(-actualBlock.getWidth(), 0, screenX, screenY, 1, 1)){
 				
-				if (!checkBlockCollisionWithOtherBlocks(actualBlock, -actualBlock.getWidth(), 0)|| actualBlock.checkCollisionWithBorder(-actualBlock.getWidth(), 0, widthPixel, heightPixel)) {
+				if (!blocksBox.checkBlockCollisionWithOtherBlocks(actualBlock, -actualBlock.getWidth(), 0)|| actualBlock.checkCollisionWithBorder(-actualBlock.getWidth(), 0, widthPixel, heightPixel)) {
 					actualBlock.move(-actualBlock.getWidth(), 0);
 				}
 			}
 		} else if (screenX > halfScreenVertical){
 			if (actualBlock.checkCollisionWithPoint(actualBlock.getWidth(), 0, screenX, screenY, 1, 1)){
 				
-				if (!checkBlockCollisionWithOtherBlocks(actualBlock, actualBlock.getWidth(), 0) || actualBlock.checkCollisionWithBorder(actualBlock.getWidth(), 0, widthPixel, heightPixel)) {
+				if (!blocksBox.checkBlockCollisionWithOtherBlocks(actualBlock, actualBlock.getWidth(), 0) || actualBlock.checkCollisionWithBorder(actualBlock.getWidth(), 0, widthPixel, heightPixel)) {
 					actualBlock.move(actualBlock.getWidth(), 0);
 				}
 			}
@@ -124,7 +114,7 @@ public class Mode {
 	
 	public void update(float delta){
 			
-		if (checkBlockCollisionWithOtherBlocks(actualBlock, 0, actualBlock.getSpeedFalling() * delta) || actualBlock.checkCollisionWithBorder(0, actualBlock.getSpeedFalling() * delta, widthPixel, heightPixel)){
+		if (blocksBox.checkBlockCollisionWithOtherBlocks(actualBlock, 0, actualBlock.getSpeedFalling() * delta) || actualBlock.checkCollisionWithBorder(0, actualBlock.getSpeedFalling() * delta, widthPixel, heightPixel)){
 			randomNextBlock();
 		} else {
 			actualBlock.move(0, actualBlock.getSpeedFalling() * delta);
@@ -133,7 +123,7 @@ public class Mode {
 		for (int index = 0; index < blocksBox.getBlocks().size; index++) {
 			Block block = blocksBox.getBlocks().get(index);
 			
-				if (!checkBlockCollisionWithOtherBlocks(block, 0, block.getSpeedFalling() * delta) && !block.checkCollisionWithBorder(0, block.getSpeedFalling() * delta, widthPixel, heightPixel)){
+				if (!blocksBox.checkBlockCollisionWithOtherBlocks(block, 0, block.getSpeedFalling() * delta) && !block.checkCollisionWithBorder(0, block.getSpeedFalling() * delta, widthPixel, heightPixel)){
 				
 				block.move(0, block.getSpeedFalling() * delta);
 			}
